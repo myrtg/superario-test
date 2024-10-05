@@ -75,7 +75,7 @@ export default function Profile() {
     console.log("User image URL:", session?.user?.image);
   }, [session, fetchUserData]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
