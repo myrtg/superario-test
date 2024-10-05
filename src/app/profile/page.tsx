@@ -327,10 +327,11 @@ export default function Profile() {
             {suggestions.map((suggestion) => (
               <ListItem
                 key={suggestion.properties.id}
-                button
+                component="button" // Specify component as "button"
                 onClick={() =>
                   handleSelectSuggestion(suggestion.properties.label)
                 }
+                sx={{ cursor: "pointer" }} // Optional: Add a pointer cursor for clarity
               >
                 <ListItemText primary={suggestion.properties.label} />
               </ListItem>
