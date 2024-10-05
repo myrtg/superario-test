@@ -179,8 +179,6 @@ export default function Profile() {
       });
       alert("Profile updated successfully!");
       fetchUserData();
-    } catch (error) {
-      alert("Failed to update profile");
     } finally {
       setIsLoading(false);
     }
