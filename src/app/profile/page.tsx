@@ -182,17 +182,23 @@ export default function Profile() {
         setIsLoading(false);
         return;
       }
-      const userDoc = doc(db, "users", session?.user?.email);
-      await setDoc(userDoc, {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        dob: formData.dob,
-        address: formData.address,
-      });
-      alert("Profile updated successfully!");
-      fetchUserData();
+
+      // Check if session?.user?.email is defined
+      if (session?.user?.email) {
+        const userDoc = doc(db, "users", session.user.email);
+        await setDoc(userDoc, {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          dob: formData.dob,
+          address: formData.address,
+        });
+        alert("Profile updated successfully!");
+        fetchUserData();
+      } else {
+        alert("User email is not available");
+      }
     } finally {
       setIsLoading(false);
     }
