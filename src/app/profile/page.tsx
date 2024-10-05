@@ -40,7 +40,7 @@ export default function Profile() {
   useEffect(() => {
     fetchUserData();
     console.log("User image URL:", session?.user?.image); // Log image URL to check if it's valid
-  }, [session]);
+  }, [session, fetchUserData]); // Add fetchUserData to the dependency array
 
   const fetchUserData = async () => {
     if (session?.user?.email) {

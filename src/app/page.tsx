@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Typography, Container, Paper } from "@mui/material";
+import { Button, Typography, Container, Paper } from "@mui/material";
 import { signIn, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
