@@ -17,9 +17,19 @@ import { db } from "../../config/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import axios from "axios";
 
+// Define an interface for the form data
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dob: string;
+  address: string;
+}
+
 export default function Profile() {
   const { data: session } = useSession();
-  const [initialData, setInitialData] = useState({
+  const [initialData, setInitialData] = useState<UserData>({
     firstName: "",
     lastName: "",
     email: session?.user?.email || "",
@@ -27,7 +37,7 @@ export default function Profile() {
     dob: "",
     address: "",
   });
-  const [formData, setFormData] = useState({ ...initialData });
+  const [formData, setFormData] = useState<UserData>({ ...initialData });
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
@@ -43,15 +53,19 @@ export default function Profile() {
       const userDoc = doc(db, "users", session.user.email);
       const userSnapshot = await getDoc(userDoc);
       if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-        if (userData.dob) {
-          const formattedDob = new Date(userData.dob)
-            .toISOString()
-            .split("T")[0];
-          userData.dob = formattedDob;
-        }
-        setFormData(userData);
-        setInitialData(userData);
+        const userData = userSnapshot.data() as Partial<UserData>; // Cast to Partial<UserData>
+        const defaultUserData: UserData = {
+          firstName: userData.firstName || "",
+          lastName: userData.lastName || "",
+          email: session.user.email || "",
+          phone: userData.phone || "",
+          dob: userData.dob
+            ? new Date(userData.dob).toISOString().split("T")[0]
+            : "",
+          address: userData.address || "",
+        };
+        setFormData(defaultUserData);
+        setInitialData(defaultUserData);
       }
     }
   }, [session?.user?.email]);
