@@ -86,7 +86,7 @@ export default function Profile() {
     }
   };
 
-  const fetchAddressSuggestions = async (query) => {
+  const fetchAddressSuggestions = async (query: string) => {
     if (query.length < 3) {
       setSuggestions([]);
       return;
