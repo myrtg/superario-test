@@ -27,6 +27,14 @@ interface UserData {
   address: string;
 }
 
+// Define an interface for the address suggestion
+interface AddressSuggestion {
+  properties: {
+    id: string;
+    label: string;
+  };
+}
+
 export default function Profile() {
   const { data: session } = useSession();
   const [initialData, setInitialData] = useState<UserData>({
@@ -45,7 +53,7 @@ export default function Profile() {
     phone: "",
     address: "",
   });
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]); // Type the suggestions array
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchUserData = useCallback(async () => {
@@ -95,7 +103,7 @@ export default function Profile() {
       const response = await axios.get(
         `https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
       );
-      setSuggestions(response.data.features);
+      setSuggestions(response.data.features); // Type will now work correctly
     } catch (error) {
       console.error("Error fetching address suggestions:", error);
     }
@@ -182,8 +190,6 @@ export default function Profile() {
         setIsLoading(false);
         return;
       }
-
-      // Check if session?.user?.email is defined
       if (session?.user?.email) {
         const userDoc = doc(db, "users", session.user.email);
         await setDoc(userDoc, {
@@ -240,7 +246,7 @@ export default function Profile() {
     >
       {session?.user?.image ? (
         <Avatar
-          alt={session?.user?.name || "User Avatar"} // Fallback to "User Avatar" if name is undefined
+          alt={session?.user?.name || "User Avatar"} // Fallback if name is undefined
           src={session.user.image || ""} // Fallback to empty string if image is undefined
           sx={{ width: 120, height: 120, mb: 3 }}
           imgProps={{ style: { objectFit: "cover" } }}
@@ -327,11 +333,11 @@ export default function Profile() {
             {suggestions.map((suggestion) => (
               <ListItem
                 key={suggestion.properties.id}
-                component="button" // Specify component as "button"
+                component="li"
                 onClick={() =>
                   handleSelectSuggestion(suggestion.properties.label)
                 }
-                sx={{ cursor: "pointer" }} // Optional: Add a pointer cursor for clarity
+                sx={{ cursor: "pointer" }}
               >
                 <ListItemText primary={suggestion.properties.label} />
               </ListItem>
