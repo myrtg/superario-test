@@ -9,9 +9,10 @@ import {
   List,
   ListItem,
   ListItemText,
+  Box,
 } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { db } from "../../config/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import axios from "axios";
@@ -37,12 +38,7 @@ export default function Profile() {
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    fetchUserData();
-    console.log("User image URL:", session?.user?.image); // Log image URL to check if it's valid
-  }, [session, fetchUserData]); // Add fetchUserData to the dependency array
-
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     if (session?.user?.email) {
       const userDoc = doc(db, "users", session.user.email);
       const userSnapshot = await getDoc(userDoc);
@@ -58,7 +54,12 @@ export default function Profile() {
         setInitialData(userData);
       }
     }
-  };
+  }, [session?.user?.email]);
+
+  useEffect(() => {
+    fetchUserData();
+    console.log("User image URL:", session?.user?.image);
+  }, [session, fetchUserData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -220,8 +221,8 @@ export default function Profile() {
         <Avatar
           alt={session?.user?.name}
           src={session.user.image}
-          sx={{ width: 120, height: 120, mb: 3 }} // Larger size and margin below
-          imgProps={{ style: { objectFit: "cover" } }} // Ensure the image fits the Avatar
+          sx={{ width: 120, height: 120, mb: 3 }}
+          imgProps={{ style: { objectFit: "cover" } }}
         />
       ) : (
         <Avatar sx={{ width: 120, height: 120, mb: 3 }}>
