@@ -240,14 +240,15 @@ export default function Profile() {
     >
       {session?.user?.image ? (
         <Avatar
-          alt={session?.user?.name}
-          src={session.user.image}
+          alt={session?.user?.name || "User Avatar"} // Fallback to "User Avatar" if name is undefined
+          src={session.user.image || ""} // Fallback to empty string if image is undefined
           sx={{ width: 120, height: 120, mb: 3 }}
           imgProps={{ style: { objectFit: "cover" } }}
         />
       ) : (
         <Avatar sx={{ width: 120, height: 120, mb: 3 }}>
-          {session?.user?.name?.charAt(0)}
+          {session?.user?.name?.charAt(0) || "U"}{" "}
+          {/* Fallback to "U" if name is undefined */}
         </Avatar>
       )}
 
