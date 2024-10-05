@@ -152,7 +152,7 @@ export default function Profile() {
     return isValid;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) {
       return;
@@ -172,7 +172,7 @@ export default function Profile() {
         return;
       }
       const userCoordinates = addressData.geometry.coordinates;
-      const parisCoordinates = [2.3522, 48.8566];
+      const parisCoordinates: [number, number] = [2.3522, 48.8566];
       const distance = calculateDistance(parisCoordinates, userCoordinates);
       if (distance > 50) {
         setErrors((prev) => ({
@@ -207,7 +207,10 @@ export default function Profile() {
     signOut({ callbackUrl: "http://localhost:3000/" });
   };
 
-  const calculateDistance = (coords1, coords2) => {
+  const calculateDistance = (
+    coords1: [number, number],
+    coords2: [number, number]
+  ) => {
     const R = 6371;
     const dLat = (coords2[1] - coords1[1]) * (Math.PI / 180);
     const dLon = (coords2[0] - coords1[0]) * (Math.PI / 180);
