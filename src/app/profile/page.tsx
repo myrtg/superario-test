@@ -101,7 +101,7 @@ export default function Profile() {
     }
   };
 
-  const handleSelectSuggestion = (address) => {
+  const handleSelectSuggestion = (address: string) => {
     setFormData((prev) => ({
       ...prev,
       address,
