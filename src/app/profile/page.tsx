@@ -12,7 +12,6 @@ import {
   ListItemText,
   Box,
   Grid,
-  Divider,
 } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import { db } from "../../config/firebaseConfig";
