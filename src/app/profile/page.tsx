@@ -10,6 +10,8 @@ import {
   ListItem,
   ListItemText,
   Box,
+  Paper,
+  Divider,
 } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
@@ -53,7 +55,7 @@ export default function Profile() {
     phone: "",
     address: "",
   });
-  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]); // Type the suggestions array
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchUserData = useCallback(async () => {
@@ -61,7 +63,7 @@ export default function Profile() {
       const userDoc = doc(db, "users", session.user.email);
       const userSnapshot = await getDoc(userDoc);
       if (userSnapshot.exists()) {
-        const userData = userSnapshot.data() as Partial<UserData>; // Cast to Partial<UserData>
+        const userData = userSnapshot.data() as Partial<UserData>;
         const defaultUserData: UserData = {
           firstName: userData.firstName || "",
           lastName: userData.lastName || "",
@@ -80,7 +82,6 @@ export default function Profile() {
 
   useEffect(() => {
     fetchUserData();
-    console.log("User image URL:", session?.user?.image);
   }, [session, fetchUserData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,7 +104,7 @@ export default function Profile() {
       const response = await axios.get(
         `https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
       );
-      setSuggestions(response.data.features); // Type will now work correctly
+      setSuggestions(response.data.features);
     } catch (error) {
       console.error("Error fetching address suggestions:", error);
     }
@@ -239,135 +240,138 @@ export default function Profile() {
   return (
     <Box
       display="flex"
-      flexDirection="column"
-      alignItems="center"
       justifyContent="center"
+      alignItems="center"
       minHeight="100vh"
+      bgcolor="grey.100"
     >
-      {session?.user?.image ? (
-        <Avatar
-          alt={session?.user?.name || "User Avatar"} // Fallback if name is undefined
-          src={session.user.image || ""} // Fallback to empty string if image is undefined
-          sx={{ width: 120, height: 120, mb: 3 }}
-          imgProps={{ style: { objectFit: "cover" } }}
-        />
-      ) : (
-        <Avatar sx={{ width: 120, height: 120, mb: 3 }}>
-          {session?.user?.name?.charAt(0) || "U"}{" "}
-          {/* Fallback to "U" if name is undefined */}
-        </Avatar>
-      )}
-
-      <Typography variant="h4" gutterBottom>
-        Update Your Profile
-      </Typography>
-
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="First Name"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleInputChange}
-          margin="normal"
-          fullWidth
-          error={!!errors.firstName}
-          helperText={errors.firstName || "Please enter your first name"}
-        />
-        <TextField
-          label="Last Name"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleInputChange}
-          margin="normal"
-          fullWidth
-          error={!!errors.lastName}
-          helperText={errors.lastName || "Please enter your last name"}
-        />
-        <TextField
-          label="Email"
-          name="email"
-          value={formData.email}
-          margin="normal"
-          fullWidth
-          disabled
-        />
-        <TextField
-          label="Phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleInputChange}
-          margin="normal"
-          fullWidth
-          error={!!errors.phone}
-          helperText={
-            errors.phone || "Valid French number: +33612345678 or 0612345678"
-          }
-        />
-        <TextField
-          label="Date of Birth"
-          type="date"
-          name="dob"
-          value={formData.dob}
-          onChange={handleInputChange}
-          InputLabelProps={{ shrink: true }}
-          margin="normal"
-          fullWidth
-          error={!!errors.dob}
-          helperText={errors.dob || "Please enter your date of birth"}
-        />
-        <TextField
-          label="Address"
-          name="address"
-          value={formData.address}
-          onChange={handleInputChange}
-          margin="normal"
-          fullWidth
-          error={!!errors.address}
-          helperText={
-            errors.address || "Enter a valid address within 50 km of Paris."
-          }
-        />
-
-        {suggestions.length > 0 && (
-          <List>
-            {suggestions.map((suggestion) => (
-              <ListItem
-                key={suggestion.properties.id}
-                component="li"
-                onClick={() =>
-                  handleSelectSuggestion(suggestion.properties.label)
-                }
-                sx={{ cursor: "pointer" }}
-              >
-                <ListItemText primary={suggestion.properties.label} />
-              </ListItem>
-            ))}
-          </List>
+      <Paper elevation={4} sx={{ padding: 4, maxWidth: 500, width: "100%" }}>
+        {session?.user?.image ? (
+          <Avatar
+            alt={session?.user?.name || "User Avatar"}
+            src={session.user.image || ""}
+            sx={{ width: 120, height: 120, mb: 3, mx: "auto" }}
+            imgProps={{ style: { objectFit: "cover" } }}
+          />
+        ) : (
+          <Avatar sx={{ width: 120, height: 120, mb: 3, mx: "auto" }}>
+            {session?.user?.name?.charAt(0) || "U"}
+          </Avatar>
         )}
 
-        <Box display="flex" justifyContent="space-between" width="100%" mt={2}>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={isLoading}
-          >
-            {isLoading ? <CircularProgress size={24} /> : "Update Profile"}
-          </Button>
-          <Button type="button" variant="outlined" onClick={handleClearForm}>
-            Clear Form
-          </Button>
-        </Box>
-      </form>
+        <Typography variant="h5" align="center" gutterBottom>
+          Update Your Profile
+        </Typography>
 
-      <Button
-        variant="outlined"
-        color="secondary"
-        onClick={handleLogout}
-        sx={{ mt: 2 }}
-      >
-        Logout
-      </Button>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="First Name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            margin="normal"
+            fullWidth
+            error={!!errors.firstName}
+            helperText={errors.firstName || "Please enter your first name"}
+          />
+          <TextField
+            label="Last Name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            margin="normal"
+            fullWidth
+            error={!!errors.lastName}
+            helperText={errors.lastName || "Please enter your last name"}
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={formData.email}
+            margin="normal"
+            fullWidth
+            disabled
+          />
+          <TextField
+            label="Phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            margin="normal"
+            fullWidth
+            error={!!errors.phone}
+            helperText={
+              errors.phone || "Valid French number: +33612345678 or 0612345678"
+            }
+          />
+          <TextField
+            label="Date of Birth"
+            type="date"
+            name="dob"
+            value={formData.dob}
+            onChange={handleInputChange}
+            InputLabelProps={{ shrink: true }}
+            margin="normal"
+            fullWidth
+            error={!!errors.dob}
+            helperText={errors.dob || "Please enter your date of birth"}
+          />
+          <TextField
+            label="Address"
+            name="address"
+            value={formData.address}
+            onChange={handleInputChange}
+            margin="normal"
+            fullWidth
+            error={!!errors.address}
+            helperText={
+              errors.address || "Enter a valid address within 50 km of Paris."
+            }
+          />
+
+          {suggestions.length > 0 && (
+            <List>
+              {suggestions.map((suggestion) => (
+                <ListItem
+                  key={suggestion.properties.id}
+                  component="li"
+                  onClick={() =>
+                    handleSelectSuggestion(suggestion.properties.label)
+                  }
+                  sx={{ cursor: "pointer" }}
+                >
+                  <ListItemText primary={suggestion.properties.label} />
+                </ListItem>
+              ))}
+            </List>
+          )}
+
+          <Box display="flex" justifyContent="space-between" mt={2}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={isLoading}
+            >
+              {isLoading ? <CircularProgress size={24} /> : "Update Profile"}
+            </Button>
+            <Button type="button" variant="outlined" onClick={handleClearForm}>
+              Clear Form
+            </Button>
+          </Box>
+        </form>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          fullWidth
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </Paper>
     </Box>
   );
 }
