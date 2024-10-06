@@ -1,27 +1,19 @@
 "use client";
 
 import React from "react";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardActions,
-  CardHeader,
-  Typography,
-  Box,
-} from "@mui/material";
+import { Button, Typography, Box, Grid } from "@mui/material";
 import { signIn, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
 const Logo = () => (
-  <svg width="50" height="50" viewBox="0 0 50 50">
-    <circle cx="25" cy="25" r="20" fill="#4285F4" />
+  <svg width="80" height="80" viewBox="0 0 50 50">
+    <circle cx="25" cy="25" r="20" fill="#ffffff" />
     <text
       x="25"
       y="30"
       fontSize="14"
       fontWeight="bold"
-      fill="white"
+      fill="#3f51b5"
       textAnchor="middle"
     >
       S
@@ -42,64 +34,92 @@ export default function SignInPage() {
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="grey.100"
-    >
-      <Card sx={{ width: 350, boxShadow: 3 }}>
-        <CardHeader
-          title={
-            <Box display="flex" justifyContent="center" mb={2}>
-              <Logo />
-            </Box>
-          }
-          subheader={
-            <>
-              <Typography variant="h5" fontWeight="bold" align="center">
-                Welcome to Superiamo
-              </Typography>
-              <Typography variant="body2" color="textSecondary" align="center">
-                Sign in to access your profile
-              </Typography>
-            </>
-          }
-        />
-        <CardContent>
+    <Box sx={{ height: "100vh", width: "100vw", overflow: "hidden" }}>
+      <Grid container sx={{ height: "100%" }}>
+        {/* Left side - Welcome message */}
+        <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{
+            bgcolor: "primary.main",
+            color: "white",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            p: 4,
+          }}
+        >
+          <Box mb={4}>
+            <Logo />
+          </Box>
           <Typography
-            variant="body2"
-            color="textSecondary"
+            variant="h2"
+            fontWeight="bold"
             align="center"
-            mb={2}
+            gutterBottom
           >
-            Please sign in to manage your information and stay updated.
+            Welcome to Superiamo
           </Typography>
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={handleSignIn}
-            sx={{
-              backgroundColor: "#4285F4",
-              "&:hover": { backgroundColor: "#3367D6" },
-            }}
-          >
-            Sign in with Google
-          </Button>
-        </CardContent>
-        <CardActions>
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            align="center"
-            sx={{ width: "100%" }}
-          >
-            By signing in, you agree to our Terms and Privacy Policy.
+          <Typography variant="h5" align="center" sx={{ maxWidth: "80%" }}>
+            Join our community and unlock a world of possibilities.
           </Typography>
-        </CardActions>
-      </Card>
+        </Grid>
+
+        {/* Right side - Sign-in button */}
+        <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            p: 4,
+            bgcolor: "background.paper",
+          }}
+        >
+          <Box sx={{ maxWidth: 400, width: "100%" }}>
+            <Typography
+              variant="h3"
+              fontWeight="bold"
+              align="center"
+              gutterBottom
+            >
+              Sign in to Your Account
+            </Typography>
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              align="center"
+              mb={4}
+            >
+              Access your profile and stay updated with the latest features.
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              onClick={handleSignIn}
+              sx={{
+                py: 2,
+                mb: 2,
+                fontSize: "1.2rem",
+                backgroundColor: "#4285F4",
+                "&:hover": { backgroundColor: "#3367D6" },
+              }}
+            >
+              Sign in with Google
+            </Button>
+            <Typography variant="body2" color="textSecondary" align="center">
+              By signing in, you agree to our Terms and Privacy Policy.
+            </Typography>
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
