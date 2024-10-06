@@ -94,23 +94,124 @@ export default function Profile() {
   };
 
   const fetchAddressSuggestions = async (query: string) => {
-    // ... (rest of the function remains the same)
+    if (query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
+      );
+      setSuggestions(response.data.features);
+    } catch (error) {
+      console.error("Error fetching address suggestions:", error);
+    }
   };
 
   const handleSelectSuggestion = (address: string) => {
-    // ... (rest of the function remains the same)
+    setFormData((prev) => ({
+      ...prev,
+      address,
+    }));
+    setSuggestions([]);
   };
 
   const validateForm = () => {
-    // ... (rest of the function remains the same)
+    let isValid = true;
+    let firstNameError = "";
+    let lastNameError = "";
+    let dobError = "";
+    let phoneError = "";
+    let addressError = "";
+    const nameRegex = /^[A-Za-z\s]+$/;
+
+    if (!formData.firstName || !nameRegex.test(formData.firstName.trim())) {
+      firstNameError =
+        "First Name is required and should contain only letters and spaces";
+      isValid = false;
+    }
+    if (!formData.lastName || !nameRegex.test(formData.lastName.trim())) {
+      lastNameError =
+        "Last Name is required and should contain only letters and spaces";
+      isValid = false;
+    }
+    if (!formData.dob) {
+      dobError = "Date of Birth is required";
+      isValid = false;
+    }
+    const phoneRegex = /^(?:\+33|0)[1-9](?:\d{2}){4}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      phoneError =
+        "Phone number must be a valid French number, e.g., +33612345678 or 0612345678";
+      isValid = false;
+    }
+    if (!formData.address) {
+      addressError = "Address is required";
+      isValid = false;
+    }
+    setErrors({
+      firstName: firstNameError,
+      lastName: lastNameError,
+      dob: dobError,
+      phone: phoneError,
+      address: addressError,
+    });
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // ... (rest of the function remains the same)
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `https://api-adresse.data.gouv.fr/search/?q=${formData.address}&limit=1`
+      );
+      const addressData = response.data.features[0];
+      if (!addressData) {
+        setErrors((prev) => ({
+          ...prev,
+          address: "Address is invalid. Please enter a valid address.",
+        }));
+        setIsLoading(false);
+        return;
+      }
+      const userCoordinates = addressData.geometry.coordinates;
+      const parisCoordinates: [number, number] = [2.3522, 48.8566];
+      const distance = calculateDistance(parisCoordinates, userCoordinates);
+      if (distance > 50) {
+        setErrors((prev) => ({
+          ...prev,
+          address: "The address is more than 50 km away from Paris.",
+        }));
+        setIsLoading(false);
+        return;
+      }
+      if (session?.user?.email) {
+        const userDoc = doc(db, "users", session.user.email);
+        await setDoc(userDoc, {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          dob: formData.dob,
+          address: formData.address,
+        });
+        alert("Profile updated successfully!");
+        fetchUserData();
+      } else {
+        alert("User email is not available");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleClearForm = () => {
-    // ... (rest of the function remains the same)
+    setFormData(initialData);
+    setErrors({ firstName: "", lastName: "", dob: "", phone: "", address: "" });
   };
 
   const handleLogout = () => {
@@ -121,7 +222,17 @@ export default function Profile() {
     coords1: [number, number],
     coords2: [number, number]
   ) => {
-    // ... (rest of the function remains the same)
+    const R = 6371;
+    const dLat = (coords2[1] - coords1[1]) * (Math.PI / 180);
+    const dLon = (coords2[0] - coords1[0]) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(coords1[1] * (Math.PI / 180)) *
+        Math.cos(coords2[1] * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   };
 
   return (
