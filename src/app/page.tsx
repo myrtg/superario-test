@@ -30,7 +30,7 @@ export default function SignInPage() {
   }
 
   const handleSignIn = () => {
-    signIn("google"); // Trigger Google sign-in through next-auth
+    signIn("google"); 
   };
 
   return (
