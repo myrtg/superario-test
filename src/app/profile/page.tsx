@@ -1,3 +1,5 @@
+// src/app/profile/page.tsx
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -22,7 +24,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import axios from "axios";
 import dynamic from "next/dynamic";
 
-// Dynamically import the Mapbox component to avoid SSR issues
+// Dynamically import the map component to avoid SSR issues
 const MapWithNoSSR = dynamic(() => import("./MapComponent"), { ssr: false });
 
 interface UserData {
@@ -266,7 +268,7 @@ export default function Profile() {
           <Button
             variant="outlined"
             color="inherit"
-            onClick={signOut}
+            onClick={() => signOut()}
             sx={{ mt: 4 }}
           >
             Logout
@@ -432,4 +434,3 @@ export default function Profile() {
     </Box>
   );
 }
-//comment to trigger commit

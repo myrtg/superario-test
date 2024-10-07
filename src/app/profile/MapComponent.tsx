@@ -1,10 +1,7 @@
-
-
 import React, { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Map, { Marker, MapLayerMouseEvent } from "react-map-gl";
 import axios from "axios";
-
 
 interface MapComponentProps {
   onSelectAddress: (address: string) => void;
@@ -24,7 +21,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onSelectAddress }) => {
     latitude: 48.8566,
     longitude: 2.3522,
   });
-
 
   const fetchAddress = async (lat: number, lng: number) => {
     try {
@@ -65,6 +61,5 @@ const MapComponent: React.FC<MapComponentProps> = ({ onSelectAddress }) => {
     </Map>
   );
 };
-
 
 export default dynamic(() => Promise.resolve(MapComponent), { ssr: false });
