@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import dynamic from "next/dynamic";
 import axios from "axios";
+import "leaflet/dist/leaflet.css";
 
 const MapComponent: React.FC<{
   onSelectAddress: (address: string) => void;
