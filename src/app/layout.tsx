@@ -1,9 +1,11 @@
+// src/app/layout.tsx
 "use client";
 
+import "mapbox-gl/dist/mapbox-gl.css"; // Load Mapbox CSS via CDN
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import React from "react";
 import { SessionProvider } from "next-auth/react";
-import Head from "next/head"; // Import Head to add external CSS
+import Head from "next/head";
 
 const theme = createTheme({
   palette: {
@@ -24,11 +26,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Head>
-        {/* Load Mapbox GL CSS via CDN */}
+        {/* If you prefer loading CSS via CDN, include the link here */}
+        {/* 
         <link
           href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
           rel="stylesheet"
         />
+        */}
       </Head>
       <body>
         <ThemeProvider theme={theme}>
