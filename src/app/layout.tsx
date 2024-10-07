@@ -1,6 +1,7 @@
+// src/app/layout.tsx
 "use client";
 
-import "mapbox-gl/dist/mapbox-gl.css";
+import "mapbox-gl/dist/mapbox-gl.css"; // Load Mapbox CSS globally
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import React from "react";
 import { SessionProvider } from "next-auth/react";

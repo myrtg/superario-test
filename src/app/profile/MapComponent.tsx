@@ -1,11 +1,11 @@
-// src/app/profile/MapComponent.tsx
+
 
 import React, { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Map, { Marker, MapLayerMouseEvent } from "react-map-gl";
 import axios from "axios";
 
-// Define the props interface
+
 interface MapComponentProps {
   onSelectAddress: (address: string) => void;
 }
@@ -25,7 +25,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onSelectAddress }) => {
     longitude: 2.3522,
   });
 
-  // Define fetchAddress outside of useCallback to prevent re-creation on every render
+
   const fetchAddress = async (lat: number, lng: number) => {
     try {
       const response = await axios.get(
@@ -38,7 +38,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onSelectAddress }) => {
     }
   };
 
-  // Update useCallback to include fetchAddress in dependencies
   const onMapClick = useCallback(
     (event: MapLayerMouseEvent) => {
       const { lngLat } = event;
@@ -50,7 +49,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onSelectAddress }) => {
 
       fetchAddress(newPosition.latitude, newPosition.longitude);
     },
-    [fetchAddress] // Include fetchAddress in dependencies
+    [fetchAddress]
   );
 
   return (
@@ -67,5 +66,5 @@ const MapComponent: React.FC<MapComponentProps> = ({ onSelectAddress }) => {
   );
 };
 
-// Dynamically import to avoid SSR issues
+
 export default dynamic(() => Promise.resolve(MapComponent), { ssr: false });
