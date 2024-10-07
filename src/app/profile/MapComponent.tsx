@@ -1,28 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import dynamic from "next/dynamic";
 import axios from "axios";
 
-
-const leafletCssUrl = "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css";
-
 const MapComponent: React.FC<{
   onSelectAddress: (address: string) => void;
 }> = ({ onSelectAddress }) => {
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = leafletCssUrl;
-    document.head.appendChild(link);
-  }, []);
-
   const [position, setPosition] = useState<[number, number]>([48.8566, 2.3522]);
 
   const LocationMarker = () => {
     useMapEvents({
       click(e) {
-        setPosition([e.latlng.lat, e.latlng.lng]); 
-        fetchAddress(e.latlng.lat, e.latlng.lng); 
+        setPosition([e.latlng.lat, e.latlng.lng]);
+        fetchAddress(e.latlng.lat, e.latlng.lng);
       },
     });
 
