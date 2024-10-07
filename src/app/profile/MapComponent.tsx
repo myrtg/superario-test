@@ -1,47 +1,59 @@
-import React, { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+// src/app/profile/MapComponent.tsx
+
+import React, { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
+import Map, { Marker } from "react-map-gl";
 import axios from "axios";
-import "leaflet/dist/leaflet.css";
 
 const MapComponent: React.FC<{
   onSelectAddress: (address: string) => void;
 }> = ({ onSelectAddress }) => {
-  const [position, setPosition] = useState<[number, number]>([48.8566, 2.3522]);
+  const [viewState, setViewState] = useState({
+    longitude: 2.3522,
+    latitude: 48.8566,
+    zoom: 13,
+  });
 
-  const LocationMarker = () => {
-    useMapEvents({
-      click(e) {
-        setPosition([e.latlng.lat, e.latlng.lng]);
-        fetchAddress(e.latlng.lat, e.latlng.lng);
-      },
-    });
+  const [position, setPosition] = useState({
+    latitude: 48.8566,
+    longitude: 2.3522,
+  });
 
-    return <Marker position={position} />;
-  };
+  const onMapClick = useCallback((event: any) => {
+    // Adjust typing as needed
+    const { lngLat } = event;
+    const newPosition = {
+      latitude: lngLat.lat,
+      longitude: lngLat.lng,
+    };
+    setPosition(newPosition);
 
-  const fetchAddress = async (lat: number, lon: number) => {
+    fetchAddress(newPosition.latitude, newPosition.longitude);
+  }, []);
+
+  const fetchAddress = async (lat: number, lng: number) => {
     try {
       const response = await axios.get(
-        `https://api-adresse.data.gouv.fr/reverse/?lon=${lon}&lat=${lat}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
       );
-      const address =
-        response.data.features[0]?.properties?.label || "Unknown Address";
+      const address = response.data.display_name || "Unknown Address";
       onSelectAddress(address);
     } catch (error) {
-      console.error("Error fetching reverse address:", error);
+      console.error("Error fetching address:", error);
     }
   };
 
   return (
-    <MapContainer
-      center={position}
-      zoom={13}
-      style={{ height: "500px", width: "100%" }}
+    <Map
+      initialViewState={viewState}
+      style={{ width: "100%", height: "500px" }}
+      mapStyle="mapbox://styles/mapbox/streets-v11"
+      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+      onMove={(evt) => setViewState(evt.viewState)}
+      onClick={onMapClick}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LocationMarker />
-    </MapContainer>
+      <Marker latitude={position.latitude} longitude={position.longitude} />
+    </Map>
   );
 };
 

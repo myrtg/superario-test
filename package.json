@@ -17,12 +17,13 @@
     "axios": "^1.7.7",
     "firebase": "^10.14.0",
     "leaflet": "^1.9.4",
+    "mapbox-gl": "^3.7.0",
     "next": "14.2.14",
     "next-auth": "^4.24.8",
-    "next-transpile-modules": "^10.0.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-leaflet": "^4.2.1"
+    "react-leaflet": "^4.2.1",
+    "react-map-gl": "^7.1.7"
   },
   "devDependencies": {
     "@types/next-auth": "^3.13.0",

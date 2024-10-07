@@ -3,7 +3,7 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import React from "react";
 import { SessionProvider } from "next-auth/react";
-import "leaflet/dist/leaflet.css"; // Import the Leaflet CSS globally
+import Head from "next/head"; // Import Head to add external CSS
 
 const theme = createTheme({
   palette: {
@@ -23,6 +23,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Head>
+        {/* Load Mapbox GL CSS via CDN */}
+        <link
+          href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+          rel="stylesheet"
+        />
+      </Head>
       <body>
         <ThemeProvider theme={theme}>
           <CssBaseline />

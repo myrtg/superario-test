@@ -22,7 +22,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import axios from "axios";
 import dynamic from "next/dynamic";
 
-// Dynamically import the map component to avoid SSR issues
+// Dynamically import the Mapbox component to avoid SSR issues
 const MapWithNoSSR = dynamic(() => import("./MapComponent"), { ssr: false });
 
 interface UserData {
