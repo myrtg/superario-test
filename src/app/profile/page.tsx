@@ -12,6 +12,8 @@ import {
   ListItemText,
   Box,
   Grid,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import { db } from "../../config/firebaseConfig";
@@ -36,6 +38,9 @@ interface AddressSuggestion {
 
 export default function Profile() {
   const { data: session } = useSession();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [initialData, setInitialData] = useState<UserData>({
     firstName: "",
     lastName: "",
@@ -235,8 +240,8 @@ export default function Profile() {
   };
 
   return (
-    <Box sx={{ height: "100vh", width: "100vw", overflow: "hidden" }}>
-      <Grid container sx={{ height: "100%" }}>
+    <Box sx={{ minHeight: "100vh", width: "100%", overflow: "hidden" }}>
+      <Grid container sx={{ minHeight: "100vh" }}>
         {/* Left side - User Info */}
         <Grid
           item
@@ -256,17 +261,36 @@ export default function Profile() {
             <Avatar
               alt={session?.user?.name || "User Avatar"}
               src={session.user.image || ""}
-              sx={{ width: 200, height: 200, mb: 3 }}
+              sx={{
+                width: isMobile ? 150 : 200,
+                height: isMobile ? 150 : 200,
+                mb: 3,
+              }}
             />
           ) : (
-            <Avatar sx={{ width: 200, height: 200, mb: 3, fontSize: "5rem" }}>
+            <Avatar
+              sx={{
+                width: isMobile ? 150 : 200,
+                height: isMobile ? 150 : 200,
+                mb: 3,
+                fontSize: isMobile ? "3rem" : "5rem",
+              }}
+            >
               {session?.user?.name?.charAt(0) || "U"}
             </Avatar>
           )}
-          <Typography variant="h4" align="center" gutterBottom>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            align="center"
+            gutterBottom
+          >
             {session?.user?.name || "User"}
           </Typography>
-          <Typography variant="h6" align="center" gutterBottom>
+          <Typography
+            variant={isMobile ? "body1" : "h6"}
+            align="center"
+            gutterBottom
+          >
             {session?.user?.email || ""}
           </Typography>
           <Button
@@ -288,12 +312,16 @@ export default function Profile() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            p: 4,
+            p: isMobile ? 2 : 4,
             bgcolor: "background.paper",
             overflowY: "auto",
           }}
         >
-          <Typography variant="h4" align="center" gutterBottom>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            align="center"
+            gutterBottom
+          >
             Update Your Profile
           </Typography>
           <Box
@@ -383,12 +411,19 @@ export default function Profile() {
               </List>
             )}
 
-            <Box display="flex" justifyContent="space-between" mt={2}>
+            <Box
+              display="flex"
+              flexDirection={isMobile ? "column" : "row"}
+              justifyContent="space-between"
+              mt={2}
+              gap={2}
+            >
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
                 disabled={isLoading}
+                fullWidth={isMobile}
               >
                 {isLoading ? <CircularProgress size={24} /> : "Update Profile"}
               </Button>
@@ -396,6 +431,7 @@ export default function Profile() {
                 type="button"
                 variant="outlined"
                 onClick={handleClearForm}
+                fullWidth={isMobile}
               >
                 Clear Form
               </Button>
