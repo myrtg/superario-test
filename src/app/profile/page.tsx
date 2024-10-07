@@ -12,6 +12,7 @@ import {
   ListItemText,
   Box,
   Grid,
+  Dialog,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -19,6 +20,10 @@ import { signOut, useSession } from "next-auth/react";
 import { db } from "../../config/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import axios from "axios";
+import dynamic from "next/dynamic";
+
+// Dynamically import the map component to avoid SSR issues
+const MapWithNoSSR = dynamic(() => import("./MapComponent"), { ssr: false });
 
 interface UserData {
   firstName: string;
@@ -59,6 +64,7 @@ export default function Profile() {
   });
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false); // State for handling map open/close
 
   const fetchUserData = useCallback(async () => {
     if (session?.user?.email) {
@@ -120,6 +126,18 @@ export default function Profile() {
     setSuggestions([]);
   };
 
+  const handleMapSelectAddress = (address: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      address,
+    }));
+    setIsMapOpen(false); // Close the map after selecting
+  };
+
+  const handleMapToggle = () => {
+    setIsMapOpen(!isMapOpen); // Toggle map visibility
+  };
+
   const validateForm = () => {
     let isValid = true;
     let firstNameError = "";
@@ -127,16 +145,13 @@ export default function Profile() {
     let dobError = "";
     let phoneError = "";
     let addressError = "";
-    const nameRegex = /^[A-Za-z\s]+$/;
 
-    if (!formData.firstName || !nameRegex.test(formData.firstName.trim())) {
-      firstNameError =
-        "First Name is required and should contain only letters and spaces";
+    if (!formData.firstName) {
+      firstNameError = "First Name is required";
       isValid = false;
     }
-    if (!formData.lastName || !nameRegex.test(formData.lastName.trim())) {
-      lastNameError =
-        "Last Name is required and should contain only letters and spaces";
+    if (!formData.lastName) {
+      lastNameError = "Last Name is required";
       isValid = false;
     }
     if (!formData.dob) {
@@ -145,14 +160,14 @@ export default function Profile() {
     }
     const phoneRegex = /^(?:\+33|0)[1-9](?:\d{2}){4}$/;
     if (!phoneRegex.test(formData.phone)) {
-      phoneError =
-        "Phone number must be a valid French number, e.g., +33612345678 or 0612345678";
+      phoneError = "Phone number must be a valid French number";
       isValid = false;
     }
     if (!formData.address) {
       addressError = "Address is required";
       isValid = false;
     }
+
     setErrors({
       firstName: firstNameError,
       lastName: lastNameError,
@@ -160,14 +175,13 @@ export default function Profile() {
       phone: phoneError,
       address: addressError,
     });
+
     return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
     setIsLoading(true);
     try {
       const response = await axios.get(
@@ -177,66 +191,22 @@ export default function Profile() {
       if (!addressData) {
         setErrors((prev) => ({
           ...prev,
-          address: "Address is invalid. Please enter a valid address.",
+          address: "Address is invalid.",
         }));
         setIsLoading(false);
         return;
       }
-      const userCoordinates = addressData.geometry.coordinates;
-      const parisCoordinates: [number, number] = [2.3522, 48.8566];
-      const distance = calculateDistance(parisCoordinates, userCoordinates);
-      if (distance > 50) {
-        setErrors((prev) => ({
-          ...prev,
-          address: "The address is more than 50 km away from Paris.",
-        }));
-        setIsLoading(false);
-        return;
-      }
+
       if (session?.user?.email) {
         const userDoc = doc(db, "users", session.user.email);
-        await setDoc(userDoc, {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          dob: formData.dob,
-          address: formData.address,
-        });
+        await setDoc(userDoc, formData);
         alert("Profile updated successfully!");
-        fetchUserData();
       } else {
         alert("User email is not available");
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleClearForm = () => {
-    setFormData(initialData);
-    setErrors({ firstName: "", lastName: "", dob: "", phone: "", address: "" });
-  };
-
-  const handleLogout = () => {
-    signOut({ callbackUrl: "http://localhost:3000/" });
-  };
-
-  const calculateDistance = (
-    coords1: [number, number],
-    coords2: [number, number]
-  ) => {
-    const R = 6371;
-    const dLat = (coords2[1] - coords1[1]) * (Math.PI / 180);
-    const dLon = (coords2[0] - coords1[0]) * (Math.PI / 180);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(coords1[1] * (Math.PI / 180)) *
-        Math.cos(coords2[1] * (Math.PI / 180)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
   };
 
   return (
@@ -296,7 +266,7 @@ export default function Profile() {
           <Button
             variant="outlined"
             color="inherit"
-            onClick={handleLogout}
+            onClick={signOut}
             sx={{ mt: 4 }}
           >
             Logout
@@ -411,6 +381,26 @@ export default function Profile() {
               </List>
             )}
 
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleMapToggle}
+              sx={{ mt: 2 }}
+            >
+              {isMapOpen ? "Close Map" : "Choose Address on Map"}
+            </Button>
+
+            {isMapOpen && (
+              <Dialog
+                open={isMapOpen}
+                onClose={handleMapToggle}
+                fullWidth
+                maxWidth="lg"
+              >
+                <MapWithNoSSR onSelectAddress={handleMapSelectAddress} />
+              </Dialog>
+            )}
+
             <Box
               display="flex"
               flexDirection={isMobile ? "column" : "row"}
@@ -430,7 +420,7 @@ export default function Profile() {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={handleClearForm}
+                onClick={() => setFormData(initialData)}
                 fullWidth={isMobile}
               >
                 Clear Form
